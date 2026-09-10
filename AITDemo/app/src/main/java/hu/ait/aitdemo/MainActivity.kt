@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    var bgColor by remember { mutableStateOf(Color.Red) }
+    var bgColor by remember { mutableStateOf(Color.White) }
 
     Column(
         modifier = modifier.background(bgColor).fillMaxSize()
