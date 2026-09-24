@@ -19,6 +19,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
+
+
         Log.d("TAG_LIFE", "onCreate called")
 
         if (savedInstanceState != null &&
@@ -29,9 +32,7 @@ class MainActivity : AppCompatActivity() {
 
         enableEdgeToEdge()
 
-
         setContentView(R.layout.activity_main)
-
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
