@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import hu.ait.composedemo.ui.theme.ComposeDemoTheme
+import kotlinx.coroutines.flow.flow
 import java.util.Date
 
 
@@ -32,18 +33,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        setContent {
-            Text("")
-        }
-
 
         setContent {
             ComposeDemoTheme {
-
-
-
-                Scaffold(modifier = Modifier.fillMaxSize()
-                ) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
                         name = "AIT Mobile Team",
                         modifier =
@@ -62,7 +55,7 @@ fun Greeting(name: String,  modifier: Modifier = Modifier) {
         by rememberSaveable { mutableStateOf("") }
 
     var userInput
-            by rememberSaveable { mutableStateOf("") }
+            by remember { mutableStateOf("") }
 
     Column(
         modifier = modifier.fillMaxSize()
@@ -89,8 +82,6 @@ fun Greeting(name: String,  modifier: Modifier = Modifier) {
     }
 }
 
-
-
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
@@ -98,3 +89,22 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+
+val myFun: (Int, Int)-> Int = {
+    numa, numb ->
+        demo(1, doThis = {})
+
+        demo(1) {
+
+        }
+
+        val resutl = numa + 1
+        resutl
+}
+
+// higher order function
+fun demo(a: Int, doThis: ()->Unit): Unit {
+
+}
+
+
