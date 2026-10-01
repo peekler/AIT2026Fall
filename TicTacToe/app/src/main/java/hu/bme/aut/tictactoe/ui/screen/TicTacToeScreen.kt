@@ -20,11 +20,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.viewmodel.compose.viewModel
+import hu.bme.aut.tictactoe.R
+import net.engawapg.lib.zoomable.rememberZoomState
+import net.engawapg.lib.zoomable.zoomable
 import kotlin.collections.plus
 
 
@@ -32,8 +45,11 @@ import kotlin.collections.plus
 fun TicTacToeGameScreen(modifier: Modifier,
     viewModel: TicTacToeViewModel = viewModel()
 ) {
+    val zoomState = rememberZoomState()
+
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize()
+            .zoomable(zoomState),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -44,8 +60,10 @@ fun TicTacToeGameScreen(modifier: Modifier,
                 viewModel.resetGame()
             }
         ) {
-            Text("Reset")
+            Text(stringResource(R.string.button_reset))
         }
+
+        Text(text = "Current player: ${viewModel.currentPlayer}")
 
         TicTacToeBoard(
             board = viewModel.board,
@@ -62,26 +80,42 @@ fun TicTacToeBoard(
     board: Array<Array<Player?>>,
     onCellClicked: (BoardCell) -> Unit
 ) {
+    val imageBitmap: ImageBitmap
+        = ImageBitmap.imageResource(R.drawable.grass)
+
+    val textMeasurer = rememberTextMeasurer()
+
     Canvas(
         modifier = Modifier
             .fillMaxWidth(0.8f)
             .aspectRatio(1.0f) // adjust height to match with the width
             .pointerInput(key1 = Unit) {
-                detectTapGestures {
-                        offSet ->
+                detectTapGestures { offSet ->
                     //Log.d("TAG_TAP",
                     //    "${offSet.x} - ${offSet.y}")
 
                     val row = (offSet.y / (size.height / 3)).toInt()
                     val col = (offSet.x / (size.width / 3)).toInt()
-                    onCellClicked(BoardCell(row,col))
+                    onCellClicked(BoardCell(row, col))
                 }
             }
     ) {
-        // --- Draw the grid
         val gridSize = size.minDimension
         val thirdSize = gridSize / 3
 
+        // --- Draw an image
+        drawImage(
+            imageBitmap,
+            srcOffset = IntOffset(0,0),
+            dstOffset = IntOffset(2*thirdSize.toInt(),
+                thirdSize.toInt()),
+            srcSize = IntSize(imageBitmap.width,
+                imageBitmap.height),
+            dstSize = IntSize(thirdSize.toInt(),
+                thirdSize.toInt())
+        )
+
+        // --- Draw the grid
         for (i in 1..2) {
             drawLine(
                 color = Color.Black,
@@ -97,6 +131,35 @@ fun TicTacToeBoard(
                 end = Offset(gridSize, thirdSize * i)
             )
         }
+
+        // --- Draw text
+        val textLayoutResult: TextLayoutResult =
+            textMeasurer.measure(
+                text = "3",
+                style = TextStyle(fontSize = thirdSize.toSp(),
+                    fontWeight = FontWeight.Bold)
+            )
+        val textSize = textLayoutResult.size
+        drawText(
+            textLayoutResult = textLayoutResult,
+            topLeft = Offset(
+                x  = thirdSize/2 - textSize.width/2,
+                y = thirdSize/2 - textSize.height/2
+            ),
+        )
+
+        for (i in 0..2) {
+            for (j in 0..2) {
+                drawText(
+                    textLayoutResult = textLayoutResult,
+                    topLeft = Offset(
+                        x  = (thirdSize/2 + i*thirdSize) - textSize.width/2,
+                        y = (thirdSize/2 + j*thirdSize) - textSize.height/2
+                    ),
+                )
+            }
+        }
+
 
         // --- Draw the players
         for (row in 0..2) {
