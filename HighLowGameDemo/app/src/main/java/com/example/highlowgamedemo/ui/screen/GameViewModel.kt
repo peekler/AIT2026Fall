@@ -1,5 +1,6 @@
 package com.example.highlowgamedemo.ui.screen
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.ViewModel
 import kotlin.random.Random
@@ -7,6 +8,7 @@ import kotlin.random.Random
 class GameViewModel: ViewModel() {
 
     private var generatedNumber = 0
+    public var guessNumber = mutableStateOf(0)
 
     init {
         generateNewNumber()

@@ -1,8 +1,13 @@
 package com.example.highlowgamedemo.ui.screen
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
@@ -37,16 +43,45 @@ fun GameScreen(modifier: Modifier = Modifier) {
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number
-            )
+            ),
+            isError = !isValidInput,
+            trailingIcon = {
+                if (!isValidInput)
+                    Icon(
+                        Icons.Filled.Warning,
+                        "error",
+                        tint = MaterialTheme.colorScheme.error)
+            }
+        )
+
+        if (!isValidInput) {
+            Text(
+                text = "Enter a proper guess in the field",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(start = 16.dp))
+        }
+
+        Text(
+            "Guess number: ${gameLogic.guessNumber.value}"
         )
 
         Button(
             onClick = {
-                resultText = when{
-                    gameLogic.checkGuessEqualsToGeneratedNumber(guess.toInt()) -> {isGameOver = true; "You guessed it"}
-                    gameLogic.isGuessHigerThanGeneratedNumber(guess.toInt()) ->  "Too high"
-                    gameLogic.isGuessLowerThanGeneratedNumber(guess.toInt()) ->  "Too low"
-                    else -> "You havent guessed it"
+                try {
+                    resultText = when {
+                        gameLogic.checkGuessEqualsToGeneratedNumber(guess.toInt()) -> {
+                            isGameOver = true; "You guessed it"
+                        }
+                        gameLogic.isGuessHigerThanGeneratedNumber(guess.toInt()) -> "Too high"
+                        gameLogic.isGuessLowerThanGeneratedNumber(guess.toInt()) -> "Too low"
+                        else -> "You havent guessed it"
+                    }
+                    if (!isGameOver) {
+                        gameLogic.guessNumber.value++
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
 
             },
@@ -58,10 +93,23 @@ fun GameScreen(modifier: Modifier = Modifier) {
 
         Text(resultText)
 
-        GameEndedDialog(isGameOver,
-            onDismiss = {gameLogic.generateNewNumber()},
-            onConfirm = {gameLogic.generateNewNumber()}
+        if (isGameOver) {
+            GameEndedDialog(
+                onDismiss = {
+                    gameLogic.generateNewNumber()
+                    isGameOver = false
+                    resultText = ""
+                    guess = ""
+                },
+                onConfirm = {
+                    gameLogic.generateNewNumber()
+                    gameLogic.generateNewNumber()
+                    isGameOver = false
+                    resultText = ""
+                    guess = ""
+                }
             )
+        }
     }
 
 

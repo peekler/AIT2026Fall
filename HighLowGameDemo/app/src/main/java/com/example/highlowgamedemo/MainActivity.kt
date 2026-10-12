@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,7 +22,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.ui.NavDisplay
+import com.example.highlowgamedemo.ui.navigation.GameScreenRoute
+import com.example.highlowgamedemo.ui.navigation.MainMenuScreenRoute
 import com.example.highlowgamedemo.ui.screen.GameScreen
+import com.example.highlowgamedemo.ui.screen.MainMenuScreen
 import com.example.highlowgamedemo.ui.theme.HighLowGameDemoTheme
 
 class MainActivity : ComponentActivity() {
@@ -29,7 +40,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             HighLowGameDemoTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    GameScreen(
+                    NavGraph(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -38,3 +49,46 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Composable
+fun NavGraph(modifier: Modifier = Modifier) {
+    // this is why the navigation starts with the MainScreen
+    val backStack = rememberNavBackStack(MainMenuScreenRoute)
+
+    // NavDisplay can actually display the current screen from those listed in the entryProvider
+    NavDisplay(
+        modifier = modifier,
+        backStack = backStack,
+        onBack = { backStack.removeLastOrNull() },
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
+        entryProvider = entryProvider {
+            entry<MainMenuScreenRoute> {
+                MainMenuScreen(
+                    onStartClick = {
+                         backStack.add(GameScreenRoute)
+                    }
+                )
+            }
+            entry<GameScreenRoute> {
+                GameScreen()
+            }
+        },
+        transitionSpec = {
+            // Slide in from right when navigating forward
+            slideInHorizontally(initialOffsetX = { it }) togetherWith slideOutHorizontally(
+                targetOffsetX = { -it })
+        },
+        popTransitionSpec = {
+            // Slide in from left when navigating back
+            slideInHorizontally(initialOffsetX = { -it }) togetherWith slideOutHorizontally(
+                targetOffsetX = { it })
+        },
+        predictivePopTransitionSpec = {
+            // Slide in from left when navigating back
+            slideInHorizontally(initialOffsetX = { -it }) togetherWith slideOutHorizontally(
+                targetOffsetX = { it })
+        }
+    )
+}
