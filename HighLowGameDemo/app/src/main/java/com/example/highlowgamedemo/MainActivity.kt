@@ -22,7 +22,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
@@ -30,6 +33,7 @@ import androidx.navigation3.ui.NavDisplay
 import com.example.highlowgamedemo.ui.navigation.GameScreenRoute
 import com.example.highlowgamedemo.ui.navigation.MainMenuScreenRoute
 import com.example.highlowgamedemo.ui.screen.GameScreen
+import com.example.highlowgamedemo.ui.screen.GameViewModel
 import com.example.highlowgamedemo.ui.screen.MainMenuScreen
 import com.example.highlowgamedemo.ui.theme.HighLowGameDemoTheme
 
@@ -66,13 +70,21 @@ fun NavGraph(modifier: Modifier = Modifier) {
         entryProvider = entryProvider {
             entry<MainMenuScreenRoute> {
                 MainMenuScreen(
-                    onStartClick = {
-                         backStack.add(GameScreenRoute)
+                    onStartClick = { upperBound ->
+                         backStack.add(GameScreenRoute(upperBound))
                     }
                 )
             }
             entry<GameScreenRoute> {
-                GameScreen()
+                // the 'it' represents the GameScreenRoute(100) object
+                // that was added to the backstack when start button was clicked
+                GameScreen(
+                    upper = it.upperBound,
+                    gameLogic = viewModel(
+                        factory = viewModelFactory {
+                            initializer { GameViewModel(it.upperBound) } }
+                    )
+                )
             }
         },
         transitionSpec = {

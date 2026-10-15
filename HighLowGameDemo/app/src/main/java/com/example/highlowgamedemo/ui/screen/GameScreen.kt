@@ -11,6 +11,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -21,11 +22,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-fun GameScreen(modifier: Modifier = Modifier) {
+fun GameScreen(modifier: Modifier = Modifier,
+               upper: Int,
+               gameLogic: GameViewModel) {
 
     var guess by rememberSaveable() { mutableStateOf("") }
 
-    val gameLogic: GameViewModel = viewModel()
+    //val gameLogic: GameViewModel = viewModel()
 
     var resultText: String by rememberSaveable { (mutableStateOf("")) }
 
@@ -33,7 +36,12 @@ fun GameScreen(modifier: Modifier = Modifier) {
 
     var isGameOver: Boolean by rememberSaveable() { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        gameLogic.generateNewNumber()
+    }
+
     Column(modifier = modifier) {
+        Text("Maxium is: $upper")
         OutlinedTextField(
             value = guess,
             label = { Text("Type your guess here") },

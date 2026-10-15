@@ -8,4 +8,4 @@ import kotlinx.serialization.Serializable
 data object MainMenuScreenRoute: NavKey
 
 @Serializable
-data object GameScreenRoute: NavKey
+data class GameScreenRoute(var upperBound: Int): NavKey
