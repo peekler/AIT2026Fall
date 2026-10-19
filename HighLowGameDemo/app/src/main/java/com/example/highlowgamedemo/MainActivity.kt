@@ -7,8 +7,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
@@ -19,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModelProvider
@@ -69,11 +73,12 @@ fun NavGraph(modifier: Modifier = Modifier) {
         ),
         entryProvider = entryProvider {
             entry<MainMenuScreenRoute> {
-                MainMenuScreen(
+                /*MainMenuScreen(
                     onStartClick = { upperBound ->
                          backStack.add(GameScreenRoute(upperBound))
                     }
-                )
+                )*/
+                DemoScreen()
             }
             entry<GameScreenRoute> {
                 // the 'it' represents the GameScreenRoute(100) object
@@ -103,4 +108,38 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 targetOffsetX = { it })
         }
     )
+}
+
+
+@Composable
+fun DemoScreen(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            horizontalAlignment =
+                Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top
+        ) {
+            Button(onClick = {}) { Text(text = "Button") }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().weight(1f),
+        ) {
+            Button(onClick = {}, modifier = Modifier.weight(1f)) { Text(text = "Button") }
+            Button(onClick = {}, modifier = Modifier.weight(1f)) { Text(text = "Button") }
+            Button(onClick = {}, modifier = Modifier.weight(1f)) { Text(text = "Button") }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth().weight(1f),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Button(onClick = {}) { Text(text = "Button") }
+            Button(onClick = {}) { Text(text = "Button") }
+        }
+    }
 }

@@ -16,7 +16,7 @@ class TodoViewModel : ViewModel() {
             "Demo title",
             "Demo description",
             "2023-10-10",
-            TodoPriority.NORMAL,
+            TodoPriority.HIGH,
             false
         ))
     }
