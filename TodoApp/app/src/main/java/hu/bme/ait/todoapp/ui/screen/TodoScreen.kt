@@ -37,9 +37,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -47,13 +49,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import hu.bme.ait.todoapp.data.TodoItem
 import hu.bme.ait.todoapp.data.TodoPriority
 import java.util.Date
 
 @Composable
-fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
+fun TodoScreen(viewModel: TodoViewModel = hiltViewModel()) {
     var showTodoDialog by rememberSaveable { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+    var todoList = viewModel.getAllToDoList().collectAsState(
+        emptyList()
+    )
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -69,13 +77,13 @@ fun TodoScreen(viewModel: TodoViewModel = viewModel()) {
             modifier = Modifier.fillMaxSize()
                 .padding(innerPadding)
         ) {
-            if (viewModel.getAllTodoNum() == 0) {
+            if (todoList.value.isEmpty()) {
                 Text("No data.")
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(viewModel.getAllToDoList()) {
+                    items(todoList.value) {
                         TodoCard(
                             it,
                             onTodoDelete = { todoItem -> viewModel.removeTodoItem(todoItem) },
@@ -253,7 +261,7 @@ fun TodoDialog(
                         if (todoToEdit == null) { // we are in create new todo mode
                             onTodoCreate(
                                 TodoItem(
-                                    "",
+                                    0,
                                     todoTitle,
                                     todoDesc,
                                     Date(System.currentTimeMillis()).toString(),

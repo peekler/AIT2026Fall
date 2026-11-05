@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.jetbrains.kotlin.serialization)
+
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.gradle)
 }
 
 android {
@@ -59,4 +62,18 @@ dependencies {
 
     implementation(libs.androidx.compose.material.icons.core)
     implementation(libs.androidx.compose.material.icons.extended)
+
+    // Hilt Dependency Injection
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+    // Hilt and instrumented tests.
+    androidTestImplementation(libs.hilt.android.testing)
+    // Hilt and Robolectric tests.
+    testImplementation(libs.hilt.android.testing)
+
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 }

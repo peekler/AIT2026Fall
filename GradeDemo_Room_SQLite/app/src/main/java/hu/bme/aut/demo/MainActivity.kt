@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     GradeScreen(
                         modifier = Modifier.padding(innerPadding),
+
                         gradeViewModel = viewModel(
                             factory = viewModelFactory {
                                 initializer { GradeViewModel(

@@ -69,7 +69,7 @@ class MainActivity : ComponentActivity() {
             modifier = modifier
         ) {
             Button(onClick = {
-                result = info.text
+                //result = info.text
                 //result = vehicle.type
                 //tvHello.text = analyitics.doTest()
 

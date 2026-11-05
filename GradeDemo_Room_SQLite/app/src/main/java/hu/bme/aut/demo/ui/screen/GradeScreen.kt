@@ -31,7 +31,8 @@ fun GradeScreen(
     var studentName by rememberSaveable { mutableStateOf("") }
     var grade by rememberSaveable { mutableStateOf("") }
 
-    val gradeList by gradeViewModel.getAllGrades().collectAsState(emptyList())
+    val gradeList by gradeViewModel.getAllGrades().collectAsState(
+        emptyList())
 
     Column(
         modifier = modifier
