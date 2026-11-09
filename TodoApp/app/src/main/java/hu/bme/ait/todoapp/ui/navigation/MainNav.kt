@@ -5,3 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data object TodoScreenRoute: NavKey
+
+@Serializable
+data class SummaryScreenRoute(
+    val allTodoNum: Int,
+    val importantTodoNum: Int
+): NavKey

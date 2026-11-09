@@ -15,7 +15,9 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import dagger.hilt.android.AndroidEntryPoint
+import hu.bme.ait.todoapp.ui.navigation.SummaryScreenRoute
 import hu.bme.ait.todoapp.ui.navigation.TodoScreenRoute
+import hu.bme.ait.todoapp.ui.screen.SummaryScreen
 import hu.bme.ait.todoapp.ui.screen.TodoScreen
 import hu.bme.ait.todoapp.ui.theme.TodoAppTheme
 
@@ -26,11 +28,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TodoAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    NavGraph(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                NavGraph(
+                    modifier = Modifier
+                )
             }
         }
     }
@@ -48,7 +48,20 @@ fun NavGraph(modifier: Modifier = Modifier) {
         },
         entryProvider = entryProvider {
             entry<TodoScreenRoute> {
-                TodoScreen()
+                TodoScreen(
+                    onSummaryClick = {
+                        allTodo, importantTodo ->
+                            backStack.add(SummaryScreenRoute(
+                                allTodo, importantTodo))
+                    }
+                )
+            }
+
+            entry<SummaryScreenRoute> {
+                SummaryScreen(
+                    it.allTodoNum,
+                    it.importantTodoNum
+                )
             }
         }
     )

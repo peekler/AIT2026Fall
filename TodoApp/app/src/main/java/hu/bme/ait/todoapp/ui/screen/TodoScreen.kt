@@ -22,14 +22,17 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +40,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,11 +57,16 @@ import androidx.compose.ui.window.Dialog
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import hu.bme.ait.todoapp.data.TodoItem
 import hu.bme.ait.todoapp.data.TodoPriority
+import kotlinx.coroutines.launch
 import java.util.Date
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TodoScreen(viewModel: TodoViewModel = hiltViewModel()) {
+fun TodoScreen(viewModel: TodoViewModel = hiltViewModel(),
+               onSummaryClick: (Int, Int) -> Unit
+               ) {
     var showTodoDialog by rememberSaveable { mutableStateOf(false) }
+    var todoToEdit: TodoItem? by rememberSaveable {mutableStateOf(null)}
 
     val coroutineScope = rememberCoroutineScope()
     var todoList = viewModel.getAllToDoList().collectAsState(
@@ -65,8 +75,52 @@ fun TodoScreen(viewModel: TodoViewModel = hiltViewModel()) {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = {Text("AIT Todo")},
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor =
+                        MaterialTheme.colorScheme.secondaryContainer
+                ),
+                actions = {
+                    IconButton(
+                        onClick = {
+                            viewModel.clearAllTodos()
+                        }
+                    ) {
+                        Icon(Icons.Filled.Delete,
+                            "Delete all")
+                    }
+
+                    IconButton(
+                        onClick = {
+                            todoToEdit = null
+                            showTodoDialog = true
+                        }
+                    ) {
+                        Icon(Icons.Filled.Add,
+                            "Add")
+                    }
+
+                    IconButton(
+                        onClick = {
+                            coroutineScope.launch {
+                                onSummaryClick(
+                                    viewModel.getAllTodoNum(),
+                                    viewModel.getImportantTodoNum()
+                                )
+                            }
+                        }
+                    ) {
+                        Icon(Icons.Filled.Inventory,
+                            "Summary")
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             Button(onClick = {
+                todoToEdit = null
                 showTodoDialog = true
             }) {
                 Text("+")
@@ -91,6 +145,11 @@ fun TodoScreen(viewModel: TodoViewModel = hiltViewModel()) {
                                 viewModel.changeTodoState(
                                     todoItem, !todoItem.isDone
                                 )
+                            },
+                            onTodoEdit =  {
+                                todo ->
+                                    todoToEdit = todo
+                                    showTodoDialog = true
                             }
                         )
                     }
@@ -104,8 +163,12 @@ fun TodoScreen(viewModel: TodoViewModel = hiltViewModel()) {
             onTodoCreate = { newTodoItem ->
                 viewModel.addTodoList(newTodoItem)
                 showTodoDialog = false },
+            onTodoEdit = { editedTodo ->
+                viewModel.editTodoItem(editedTodo)
+                showTodoDialog = false
+            },
             onCancel = {showTodoDialog = false},
-            todoToEdit = null
+            todoToEdit = todoToEdit
         )
     }
 }
@@ -115,7 +178,8 @@ fun TodoScreen(viewModel: TodoViewModel = hiltViewModel()) {
 fun TodoCard(
     todoItem: TodoItem,
     onTodoDelete: (TodoItem) -> Unit,
-    onTodoChecked: (TodoItem) -> Unit
+    onTodoChecked: (TodoItem) -> Unit,
+    onTodoEdit: (TodoItem) -> Unit
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -173,7 +237,7 @@ fun TodoCard(
                     imageVector = Icons.Filled.Edit,
                     contentDescription = "Edit",
                     modifier = Modifier.clickable {
-                        //
+                        onTodoEdit(todoItem)
                     },
                     tint = Color.Gray
                 )
@@ -205,6 +269,7 @@ fun TodoCard(
 @Composable
 fun TodoDialog(
     onTodoCreate: (TodoItem) -> Unit,
+    onTodoEdit: (TodoItem) -> Unit,
     todoToEdit: TodoItem? = null,
     onCancel: () -> Unit
 ) {
@@ -275,7 +340,7 @@ fun TodoDialog(
                                 description = todoDesc,
                                 priority = if (important) TodoPriority.HIGH else TodoPriority.NORMAL
                             )
-                            //
+                            onTodoEdit(editedTodo)
                         }
 
                         onCancel()
