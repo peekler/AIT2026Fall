@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "233210762249",
+    "project_id": "aitdemoforum2026fall",
+    "storage_bucket": "aitdemoforum2026fall.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:233210762249:android:ae1352b49ad32cc33294d8",
+        "android_client_info": {
+          "package_name": "hu.ait.aitforum"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWH5vn4GxINyzD8aHjCrRmF2WcbM6GmHw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
