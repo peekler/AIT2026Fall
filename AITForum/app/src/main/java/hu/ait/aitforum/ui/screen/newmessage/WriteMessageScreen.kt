@@ -1,35 +1,112 @@
 package hu.ait.aitforum.ui.screen.newmessage
 
+import android.content.Context
+import android.net.Uri
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
+import androidx.core.content.FileProvider.getUriForFile
+import androidx.lifecycle.viewmodel.compose.viewModel
+import java.io.File
 
 @Composable
-fun WriteMessageScreen() {
-    Column(modifier = Modifier.fillMaxSize()) {
+fun WriteMessageScreen(
+    viewModel: WriteMessageScreenViewModel = viewModel()
+) {
+    var postTitle by rememberSaveable { mutableStateOf("") }
+    var postBody by rememberSaveable { mutableStateOf("") }
+
+
+    Column(modifier = Modifier.fillMaxSize().padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+        Text("Write Post Message",
+            fontSize = 28.sp,
+            fontFamily = FontFamily.Monospace,
+            fontStyle = FontStyle.Italic)
+
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = "",
+            label = {Text("Enter title here")},
+            value = postTitle,
             onValueChange = {
-
+                postTitle = it
             }
         )
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth(),
-            value = "",
+            label = {Text("Enter post body here")},
+            value = postBody,
             onValueChange = {
-
+                postBody = it
             }
         )
         Button(
-            onClick = {}
+            onClick = {
+                viewModel.uploadPost(
+                    postTitle, postBody, ""
+                )
+            }
         ) {
             Text("Save")
         }
+
+        when(viewModel.writePostUiState) {
+            is WritePostUiState.Init -> {}
+            is WritePostUiState.LoadingPostUpload -> CircularProgressIndicator()
+            is WritePostUiState.PostUploadSuccess -> Text("Post uploaded")
+            is WritePostUiState.ErrorDuringPostUpload -> {
+                val errorText =
+                    (viewModel.writePostUiState as
+                            WritePostUiState.ErrorDuringPostUpload)
+                        .error
+                Text(errorText!!)
+            }
+            else -> {}
+        }
+
     }
 }
+
+
+class ComposeFileProvider : FileProvider(
+    hu.ait.aitforum.R.xml.filepaths
+) {
+    companion object {
+        fun getImageUri(context: Context): Uri {
+            val directory = File(context.cacheDir,
+                "images")
+            directory.mkdirs()
+            val file = File.createTempFile(
+                "selected_image_",
+                ".jpg",
+                directory,
+            )
+            val authority = context.packageName + ".fileprovider"
+            return getUriForFile(
+                context,
+                authority,
+                file,
+            )
+        }
+    }
+}
+
