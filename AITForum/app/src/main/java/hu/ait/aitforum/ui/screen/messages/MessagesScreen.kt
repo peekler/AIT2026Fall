@@ -137,7 +137,11 @@ fun PostCard(
             }
 
             if (post.imgUrl != "") {
-                // HERE GOES THE IMAGE LATER
+                AsyncImage(
+                    model = post.imgUrl,
+                    modifier = Modifier.size(100.dp, 100.dp),
+                    contentDescription = "selected image"
+                )
             }
 
         }
